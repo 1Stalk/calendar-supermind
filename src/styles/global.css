@@ -1,0 +1,295 @@
+/* ==========================================================================
+   КАЛЕНДАРНЫЙ СВЕРХМОЗГ — ДИЗАЙН-СИСТЕМА (MOBILE-FIRST)
+   Минималистичная, эргономичная эстетика без неоновых градиентов и emoji-шума
+   ========================================================================== */
+
+:root {
+  /* Палитра поверхностей */
+  --bg-desktop: #080a0e;
+  --bg-app: #0f1217;
+  --bg-surface: #171b23;
+  --bg-surface-elevated: #1f2530;
+  --bg-surface-hover: #262d3a;
+  --bg-surface-active: #2b3342;
+
+  /* Границы и разделители */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-muted: rgba(255, 255, 255, 0.14);
+  --border-focus: #3b82f6;
+
+  /* Текстовые стили */
+  --text-primary: #f1f4f8;
+  --text-secondary: #96a0b2;
+  --text-muted: #5e687a;
+  --text-inverse: #0a0c10;
+
+  /* Функциональные цвета */
+  --accent: #3b82f6;
+  --accent-muted: rgba(59, 130, 246, 0.12);
+  --accent-hover: #2563eb;
+
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.12);
+  --success-border: rgba(16, 185, 129, 0.35);
+
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.35);
+
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.35);
+
+  /* Геометрия */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* Шрифты */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", "JetBrains Mono", Consolas, monospace;
+
+  /* Тени (аккуратные и сдержанные) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Сброс и базовые настройки */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-desktop);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* На мобильных — растягиваем, на ПК — центрируем в формате смартфона */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Основной мобильный контейнер приложения */
+.app-container {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: max(12px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 440px) {
+  .app-container {
+    border-left: none;
+    border-right: none;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Улучшение тач-взаимодействия на смартфонах */
+button, select, input, a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-family: inherit;
+}
+
+button {
+  user-select: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  transition: transform 70ms ease, background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* Моноширинные и табличные цифры для расчётов */
+.mono-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Стилизация полосы прокрутки */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-muted);
+  border-radius: 999px;
+}
+
+/* Общие переиспользуемые карточки */
+.surface-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.surface-card-subtle {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+/* Кнопки действий */
+.btn-primary {
+  background-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-secondary:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+.btn-subtle {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-subtle:hover {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+}
+
+/* Сетка вариантов ответа (кнопки 0..6) */
+.options-grid-7 {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.btn-digit-option {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  height: 48px;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  min-width: 0;
+  padding: 0;
+  transition: all 120ms ease;
+}
+
+.btn-digit-option:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-muted);
+}
+
+.btn-digit-option.correct {
+  background-color: var(--success-bg) !important;
+  border-color: var(--success) !important;
+  color: var(--success) !important;
+}
+
+.btn-digit-option.wrong {
+  background-color: var(--danger-bg) !important;
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+/* Сообщения обратной связи */
+.feedback-box {
+  min-height: 28px;
+  margin-top: 12px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  text-align: center;
+  transition: opacity 120ms ease;
+}
+.feedback-box.correct {
+  color: var(--success);
+}
+.feedback-box.wrong {
+  color: var(--danger);
+}
+
+/* Скрываемый блок подсказки */
+.hint-collapsible {
+  transition: opacity 160ms ease, max-height 160ms ease;
+}
+.hint-collapsible.hidden-hint {
+  display: none !important;
+}
+
+/* ==========================================================================
+   УПРАВЛЕНИЕ ВКЛАДКАМИ (ТАБАМИ)
+   ========================================================================== */
+.tab-panel {
+  display: none !important;
+}
+
+.tab-panel.active {
+  display: block !important;
+}
+

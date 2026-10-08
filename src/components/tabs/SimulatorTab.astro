@@ -1,0 +1,374 @@
+---
+// src/components/tabs/SimulatorTab.astro
+---
+
+<section class="tab-panel active" id="tab-full-sim">
+  <div class="surface-card sim-card">
+    <!-- Верхняя панель: Сложность и Таймер -->
+    <div class="sim-header">
+      <div class="difficulty-wrapper">
+        <label for="sim-difficulty-select" class="sr-only">Сложность:</label>
+        <select id="sim-difficulty-select" class="sim-select">
+          <option value="current_decade" data-i18n="simDiffCurrentDecade">2020–2029 (Десятилетие)</option>
+          <option value="modern" selected data-i18n="simDiffModern">1900–2099 (XX и XXI века)</option>
+          <option value="history" data-i18n="simDiffHistory">1600–2399 (Вся история)</option>
+          <option value="leap_focus" data-i18n="simDiffLeapFocus">Ловушка 4%: Високосные Янв/Фев</option>
+        </select>
+      </div>
+
+      <div class="timer-badge mono-nums" id="sim-timer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="sim-timer-val">0.00</span> <span id="sim-timer-unit" data-i18n="timeUnit">с</span>
+      </div>
+    </div>
+
+    <!-- Блок отображения загаданной даты -->
+    <div class="date-hero">
+      <span class="leap-badge" id="sim-leap-indicator" style="display: none;" data-i18n="simLeapBadge">Високосный год</span>
+      <div class="date-title" id="sim-date-title">-- ------- ----</div>
+      <div class="date-subtitle" id="sim-date-sub" data-i18n="simCalendarSub">Григорианский календарь</div>
+    </div>
+
+    <!-- Цифровая клавиатура дней недели (раскладка 3-3-1 под палец) -->
+    <div class="keypad-grid" id="sim-weekday-buttons">
+      <button class="keypad-btn" data-day="1" id="btn-day-1">
+        <span class="key-digit mono-nums">1</span>
+        <span class="key-name" data-i18n-day="1">Понедельник</span>
+      </button>
+      <button class="keypad-btn" data-day="2" id="btn-day-2">
+        <span class="key-digit mono-nums">2</span>
+        <span class="key-name" data-i18n-day="2">Вторник</span>
+      </button>
+      <button class="keypad-btn" data-day="3" id="btn-day-3">
+        <span class="key-digit mono-nums">3</span>
+        <span class="key-name" data-i18n-day="3">Среда</span>
+      </button>
+      <button class="keypad-btn" data-day="4" id="btn-day-4">
+        <span class="key-digit mono-nums">4</span>
+        <span class="key-name" data-i18n-day="4">Четверг</span>
+      </button>
+      <button class="keypad-btn" data-day="5" id="btn-day-5">
+        <span class="key-digit mono-nums">5</span>
+        <span class="key-name" data-i18n-day="5">Пятница</span>
+      </button>
+      <button class="keypad-btn" data-day="6" id="btn-day-6">
+        <span class="key-digit mono-nums">6</span>
+        <span class="key-name" data-i18n-day="6">Суббота</span>
+      </button>
+      <button class="keypad-btn keypad-btn-wide" data-day="0" id="btn-day-0">
+        <span class="key-digit mono-nums">0</span>
+        <span class="key-name" data-i18n-day="0">Воскресенье</span>
+      </button>
+    </div>
+
+    <!-- Результат проверки -->
+    <div class="feedback-card" id="sim-feedback" style="display: none;">
+      <div class="feedback-head" id="feedback-status"></div>
+      <div class="feedback-body" id="feedback-msg"></div>
+    </div>
+
+    <!-- Кнопки управления -->
+    <div class="sim-actions">
+      <button class="btn-secondary flex-1" id="btn-toggle-breakdown" data-i18n="simBtnBreakdown">
+        Разбор шагов
+      </button>
+      <button class="btn-primary flex-1" id="btn-next-sim-date" data-i18n="simBtnNextDate">
+        Следующая дата
+      </button>
+    </div>
+
+    <!-- Пошаговый разбор конвейера -->
+    <div class="breakdown-wrapper" id="breakdown-card" style="display: none;">
+      <div class="breakdown-header" data-i18n="simBreakdownHeader">Пошаговый конвейер расчёта:</div>
+      <div class="breakdown-steps" id="breakdown-steps-container"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sim-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .sim-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .difficulty-wrapper {
+    flex: 1;
+  }
+
+  .sim-select {
+    width: 100%;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 7px 10px;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .sim-select:focus {
+    border-color: var(--accent);
+  }
+
+  .timer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+  }
+
+  /* Блок даты */
+  .date-hero {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 20px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .leap-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: var(--radius-xs);
+    background-color: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid var(--warning-border);
+    letter-spacing: 0.02em;
+  }
+
+  .date-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+
+  .date-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Раскладка кнопок дней недели 3-3-1 */
+  .keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .keypad-btn {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 10px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    transition: all 120ms ease;
+  }
+
+  .keypad-btn:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--border-muted);
+  }
+
+  .keypad-btn-wide {
+    grid-column: 1 / -1;
+    min-height: 52px;
+    flex-direction: row;
+    gap: 12px;
+  }
+
+  .key-digit {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .key-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .keypad-btn.correct {
+    background-color: var(--success-bg) !important;
+    border-color: var(--success) !important;
+    color: var(--success) !important;
+  }
+  .keypad-btn.correct .key-digit,
+  .keypad-btn.correct .key-name {
+    color: var(--success) !important;
+  }
+
+  .keypad-btn.wrong {
+    background-color: var(--danger-bg) !important;
+    border-color: var(--danger) !important;
+    color: var(--danger) !important;
+  }
+  .keypad-btn.wrong .key-digit,
+  .keypad-btn.wrong .key-name {
+    color: var(--danger) !important;
+  }
+
+  /* Фидбек */
+  .feedback-card {
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    border: 1px solid var(--border-subtle);
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .feedback-card.success {
+    background-color: var(--success-bg);
+    border-color: var(--success-border);
+    color: var(--text-primary);
+  }
+  .feedback-card.success .feedback-head {
+    color: var(--success);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .feedback-card.error {
+    background-color: var(--danger-bg);
+    border-color: var(--danger-border);
+    color: var(--text-primary);
+  }
+  .feedback-card.error .feedback-head {
+    color: var(--danger);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .sim-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .flex-1 {
+    flex: 1;
+  }
+
+  /* Разбор шагов */
+  .breakdown-wrapper {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+  }
+
+  .breakdown-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  :global(.breakdown-steps) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.b-step) {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  :global(.b-step.final) {
+    background-color: var(--accent-muted);
+    border-color: var(--accent);
+  }
+
+  :global(.b-num) {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: var(--bg-surface-elevated);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  :global(.b-step.final .b-num) {
+    background-color: var(--accent);
+    color: #fff;
+  }
+
+  :global(.b-content) {
+    flex: 1;
+    font-size: 13px;
+  }
+
+  :global(.b-title) {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+  }
+
+  :global(.b-calc) {
+    color: var(--text-secondary);
+    font-size: 12px;
+    display: block;
+  }
+
+  :global(.b-result) {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+
+  :global(.b-step.final .b-result) {
+    color: var(--text-primary);
+    font-size: 14.5px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+</style>

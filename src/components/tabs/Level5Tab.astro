@@ -1,0 +1,82 @@
+---
+// src/components/tabs/Level5Tab.astro
+---
+
+<section class="tab-panel" id="tab-level-5">
+  <div class="surface-card drill-card">
+    <div class="drill-header-row">
+      <div>
+        <h2 data-i18n="l5Title">Уровень 5: Коды веков</h2>
+        <p class="hint-collapsible" id="l5-header-desc" data-i18n="l5Desc">
+          2000-е = <strong>6</strong> | 1900-е = <strong>0</strong> | 1800-е = <strong>2</strong> | 1700-е = <strong>4</strong>
+        </p>
+      </div>
+      <button class="btn-subtle" id="btn-toggle-l5-hints" title="Переключить подсказку" data-i18n-title="btnHint">
+        <span class="hint-text" data-i18n="btnHint">Подсказка</span>
+      </button>
+    </div>
+
+    <div class="drill-box">
+      <span class="drill-sublabel" data-i18n="l5PromptLabel">Столетие:</span>
+      <div class="drill-prompt-text mono-nums" id="l5-prompt-display">1800-е годы</div>
+    </div>
+
+    <!-- Кнопки 0..6 -->
+    <div class="options-grid-7" id="l5-buttons-grid">
+      <!-- Генерируются в JS -->
+    </div>
+
+    <div class="feedback-box" id="l5-feedback"></div>
+  </div>
+</section>
+
+<style>
+  .drill-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .drill-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .drill-header-row h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .drill-header-row p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .drill-box {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 24px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .drill-sublabel {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .drill-prompt-text {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+</style>

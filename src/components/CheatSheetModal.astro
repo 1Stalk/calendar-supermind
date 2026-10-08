@@ -1,0 +1,311 @@
+---
+// src/components/CheatSheetModal.astro
+---
+
+<div class="modal-overlay" id="modal-cheat-sheet" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 id="modal-title" data-i18n="cheatTitle">Шпаргалка мастера дат</h2>
+      <button class="btn-close" id="btn-close-cheat-sheet" aria-label="Закрыть шпаргалку" data-i18n-aria="cheatCloseAria">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-content">
+      <!-- 1. Главная формула -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec1Title">1. Главная формула</h3>
+        <div class="formula-box mono-nums" data-i18n="cheatSec1Formula">
+          День = (Число + Месяц + Век + Год) mod 7
+        </div>
+        <p class="section-note" id="cheat-sec1-note">
+          <strong data-i18n="cheatSec1NoteLabel">Правило сброса:</strong> <span data-i18n="cheatSec1NoteText">как только сумма достигает ≥ 7, сразу сбрасывайте 7!</span>
+        </p>
+      </section>
+
+      <!-- 2. Дни недели -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec2Title">2. Оцифровка дней недели</h3>
+        <div class="days-chips" id="cheat-days-chips">
+          <div class="day-chip"><strong>1</strong> <span data-i18n-day="1">Пн</span></div>
+          <div class="day-chip"><strong>2</strong> <span data-i18n-day="2">Вт</span></div>
+          <div class="day-chip"><strong>3</strong> <span data-i18n-day="3">Ср</span></div>
+          <div class="day-chip"><strong>4</strong> <span data-i18n-day="4">Чт</span></div>
+          <div class="day-chip"><strong>5</strong> <span data-i18n-day="5">Пт</span></div>
+          <div class="day-chip"><strong>6</strong> <span data-i18n-day="6">Сб</span></div>
+          <div class="day-chip accent"><strong>0</strong> <span data-i18n-day="0">Вс</span></div>
+        </div>
+      </section>
+
+      <!-- 3. Мнемоника месяцев -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec3Title">3. Мнемонические коды месяцев</h3>
+        <div class="months-table" id="cheat-months-table">
+          <!-- Генерируется динамически в JS под язык -->
+        </div>
+      </section>
+
+      <!-- 4. Опорные 28 лет -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec4Title">4. Код года: опорные 28, 56, 84</h3>
+        <p class="section-text" data-i18n="cheatSec4Text">
+          Вычтите ориентир → прибавьте четвёрки в остатке → сбросьте семёрки.
+        </p>
+        <div class="example-box mono-nums" id="cheat-year-example">
+          Пример 1897 г.: 97 - 84 = 13. Четвёрок: 3.<br />
+          13 mod 7 = 6. Итог: (6 + 3) mod 7 = <strong>2</strong>!
+        </div>
+      </section>
+
+      <!-- 5. Коды веков -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec5Title">5. Коды веков: обратный отсчёт</h3>
+        <div class="centuries-grid mono-nums" id="cheat-centuries-grid">
+          <div class="c-chip" data-i18n="cheatSec5Decade2000"><strong>2000-е</strong>: 6 (-1)</div>
+          <div class="c-chip accent" data-i18n="cheatSec5Decade1900"><strong>1900-е</strong>: 0</div>
+          <div class="c-chip" data-i18n="cheatSec5Decade1800"><strong>1800-е</strong>: 2</div>
+          <div class="c-chip" data-i18n="cheatSec5Decade1700"><strong>1700-е</strong>: 4</div>
+        </div>
+      </section>
+
+      <!-- 6. Високосные годы -->
+      <section class="cheat-section">
+        <h3 data-i18n="cheatSec6Title">6. Високосные годы (Ловушка 4% дат)</h3>
+        <p class="section-note" id="cheat-leap-note">
+          Поправка нужна <strong>ТОЛЬКО для Января и Февраля</strong> (отнимите 1). Для остальных 10 месяцев високосность не важна!
+        </p>
+        <div class="leap-rules" id="cheat-leap-rules">
+          <div>• <strong>Чётный десяток</strong>: конец на <strong>0, 4, 8</strong></div>
+          <div>• <strong>Нечётный десяток</strong>: конец на <strong>2, 6</strong></div>
+          <div>• <strong>Века</strong>: 1600, 2000 — да; 1800, 1900 — нет</div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  @media (min-width: 441px) {
+    .modal-overlay {
+      align-items: center;
+      padding: 20px;
+    }
+  }
+
+  .modal-container {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    width: 100%;
+    max-width: 440px;
+    max-height: 85vh;
+    max-height: 85dvh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-modal);
+  }
+
+  @media (min-width: 441px) {
+    .modal-container {
+      border-radius: var(--radius-xl);
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .modal-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .btn-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-close:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface-elevated);
+  }
+
+  .modal-content {
+    padding: 16px 18px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .cheat-section h3 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .formula-box {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .section-note {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+
+  .section-text {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .days-chips {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .day-chip {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 8px 4px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+  }
+  .day-chip strong {
+    color: var(--text-primary);
+  }
+  .day-chip.accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .months-table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 6px;
+  }
+
+  .m-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: var(--radius-xs);
+    font-size: 12.5px;
+    gap: 8px;
+  }
+  .m-row:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .m-col-name {
+    width: 72px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .m-col-code {
+    width: 82px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .m-col-code small {
+    font-size: 10px;
+    color: var(--warning);
+  }
+
+  .m-col-desc {
+    flex: 1;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+  }
+
+  .example-box {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--text-secondary);
+  }
+  .example-box strong {
+    color: var(--accent);
+  }
+
+  .centuries-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .c-chip {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+  .c-chip.accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .leap-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .leap-rules strong {
+    color: var(--text-primary);
+  }
+</style>

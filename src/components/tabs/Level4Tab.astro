@@ -1,0 +1,173 @@
+---
+// src/components/tabs/Level4Tab.astro
+---
+
+<section class="tab-panel" id="tab-level-4">
+  <div class="surface-card drill-card">
+    <div class="drill-header-row">
+      <div>
+        <h2 data-i18n="l4Title">Уровень 4: Год и Високосность</h2>
+        <p class="hint-collapsible" id="l4-header-desc" data-i18n="l4Desc">
+          Ориентиры: <strong>28, 56, 84</strong> дают 0 сдвига!
+        </p>
+      </div>
+      <button class="btn-subtle" id="btn-toggle-l4-hints" title="Переключить подсказку" data-i18n-title="btnHint">
+        <span class="hint-text" data-i18n="btnHint">Подсказка</span>
+      </button>
+    </div>
+
+    <!-- Переключатель подрежимов -->
+    <div class="segmented-control">
+      <button class="segment-btn active" id="btn-subtab-l4-code" data-i18n="l4TabCode">Код года (00–99)</button>
+      <button class="segment-btn" id="btn-subtab-l4-leap" data-i18n="l4TabLeap">Тест високосности</button>
+    </div>
+
+    <!-- Подрежим 1: Код года -->
+    <div id="l4-code-view">
+      <div class="drill-box">
+        <span class="drill-sublabel" data-i18n="l4CodePromptLabel">Год:</span>
+        <div class="drill-prompt-text mono-nums" id="l4-prompt-display">'97 год</div>
+        <div class="hint-collapsible guide-steps" id="l4-guide-steps"></div>
+      </div>
+
+      <!-- Кнопки 0..6 -->
+      <div class="options-grid-7" id="l4-buttons-grid">
+        <!-- Генерируются в JS -->
+      </div>
+
+      <div class="feedback-box" id="l4-feedback"></div>
+    </div>
+
+    <!-- Подрежим 2: Тест високосности -->
+    <div id="l4-leap-view" style="display: none;">
+      <div class="drill-box">
+        <span class="drill-sublabel" data-i18n="l4LeapPromptLabel">Является ли год високосным?</span>
+        <div class="drill-prompt-text mono-nums" id="l4-leap-prompt-display">1976</div>
+        <div class="hint-collapsible rule-reminder" id="l4-leap-rule-reminder" data-i18n="l4LeapRuleReminder">
+          Чётный десяток → 0, 4, 8 | Нечётный → 2, 6 | Века: делятся на 400
+        </div>
+      </div>
+
+      <div class="leap-buttons-grid">
+        <button class="btn-leap" id="btn-l4-leap-yes" data-i18n="l4BtnLeap">
+          Високосный
+        </button>
+        <button class="btn-leap" id="btn-l4-leap-no" data-i18n="l4BtnCommon">
+          Обычный
+        </button>
+      </div>
+
+      <div class="feedback-box" id="l4-leap-feedback"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .drill-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .drill-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .drill-header-row h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .drill-header-row p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .segmented-control {
+    display: flex;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 3px;
+    gap: 4px;
+  }
+
+  .segment-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 120ms ease;
+  }
+
+  .segment-btn.active {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .drill-box {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .drill-sublabel {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .drill-prompt-text {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .guide-steps, .rule-reminder {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .leap-buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .btn-leap {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 120ms ease;
+  }
+
+  .btn-leap:hover {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--border-muted);
+  }
+</style>

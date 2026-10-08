@@ -1,0 +1,72 @@
+---
+// src/components/TabNavigation.astro
+---
+
+<nav class="tab-nav-wrapper" aria-label="Разделы тренажёра">
+  <div class="tab-nav" id="tab-nav">
+    <button class="nav-chip active" data-tab="tab-full-sim" id="tab-btn-sim">
+      <span class="chip-title" data-i18n="tabFinal">Финал</span>
+    </button>
+    <button class="nav-chip" data-tab="tab-level-1" id="tab-btn-l1">
+      <span class="chip-title" data-i18n="tabL1">1. Дни</span>
+    </button>
+    <button class="nav-chip" data-tab="tab-level-2" id="tab-btn-l2">
+      <span class="chip-title" data-i18n="tabL2">2. Mod 7</span>
+    </button>
+    <button class="nav-chip" data-tab="tab-level-3" id="tab-btn-l3">
+      <span class="chip-title" data-i18n="tabL3">3. Месяцы</span>
+    </button>
+    <button class="nav-chip" data-tab="tab-level-4" id="tab-btn-l4">
+      <span class="chip-title" data-i18n="tabL4">4. Год</span>
+    </button>
+    <button class="nav-chip" data-tab="tab-level-5" id="tab-btn-l5">
+      <span class="chip-title" data-i18n="tabL5">5. Века</span>
+    </button>
+  </div>
+</nav>
+
+<style>
+  .tab-nav-wrapper {
+    margin-bottom: 14px;
+    width: 100%;
+  }
+
+  .tab-nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .nav-chip {
+    padding: 8px 4px;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: all 120ms ease;
+    min-height: 38px;
+  }
+
+  .nav-chip:hover {
+    background-color: var(--bg-surface-elevated);
+    color: var(--text-primary);
+  }
+
+  .nav-chip.active {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+  }
+
+  .chip-title {
+    pointer-events: none;
+  }
+</style>

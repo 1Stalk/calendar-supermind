@@ -1,0 +1,66 @@
+---
+// src/components/StatsBar.astro
+---
+
+<div class="stats-bar" id="stats-bar">
+  <div class="stat-pill">
+    <span class="stat-label" data-i18n="statStreak">Серия</span>
+    <span class="stat-value mono-nums text-accent" id="stat-streak">0</span>
+  </div>
+  <div class="stat-pill">
+    <span class="stat-label" data-i18n="statRecord">Рекорд</span>
+    <span class="stat-value mono-nums" id="stat-best-streak">0</span>
+  </div>
+  <div class="stat-pill">
+    <span class="stat-label" data-i18n="statSolved">Решено</span>
+    <span class="stat-value mono-nums" id="stat-total-solved">0</span>
+  </div>
+  <div class="stat-pill">
+    <span class="stat-label" data-i18n="statSpeed">Скорость</span>
+    <span class="stat-value mono-nums text-success" id="stat-best-time">--:--</span>
+  </div>
+</div>
+
+<style>
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stat-pill {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 7px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .text-accent {
+    color: var(--accent);
+  }
+
+  .text-success {
+    color: var(--success);
+  }
+</style>

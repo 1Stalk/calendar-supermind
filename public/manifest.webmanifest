@@ -1,0 +1,17 @@
+{
+  "name": "Календарный Сверхмозг",
+  "short_name": "Сверхмозг",
+  "description": "Тренажёр счёта дней недели любой даты в уме",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1217",
+  "theme_color": "#0f1217",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
