@@ -1,7 +1,13 @@
 /**
  * СИНТЕЗАТОР ЗВУКОВ И ТАКТИЛЬНЫЙ ОТКЛИК (Web Audio API + Navigator Vibrate)
- * Не требует внешних аудиофайлов, мгновенная реакция без сетевых задержек.
+ * Синтезирует звуки в браузере без внешних звуковых файлов.
  */
+
+type WindowWithWebkitAudio = Window & typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+const SOUND_STORAGE_KEY = 'cal_sound_enabled';
 
 class SoundController {
   private enabled: boolean = true;
@@ -9,21 +15,28 @@ class SoundController {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('cal_sound_enabled');
-      this.enabled = saved !== null ? saved === 'true' : true;
+      try {
+        const saved = localStorage.getItem(SOUND_STORAGE_KEY);
+        this.enabled = saved !== null ? saved === 'true' : true;
+      } catch {
+        this.enabled = true;
+      }
     }
   }
 
-  private initCtx() {
+  private initCtx(): void {
     if (typeof window === 'undefined') return;
     if (!this.ctx) {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const win = window as WindowWithWebkitAudio;
+      const AudioCtx = win.AudioContext || win.webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+      this.ctx.resume().catch(() => {
+        // Игнорируем ошибку resume до пользовательского жеста
+      });
     }
   }
 
@@ -31,10 +44,14 @@ class SoundController {
     return this.enabled;
   }
 
-  public setEnabled(val: boolean) {
+  public setEnabled(val: boolean): void {
     this.enabled = val;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('cal_sound_enabled', val ? 'true' : 'false');
+      try {
+        localStorage.setItem(SOUND_STORAGE_KEY, val ? 'true' : 'false');
+      } catch {
+        // Игнорируем в случае блокировки storage
+      }
     }
   }
 
@@ -46,7 +63,7 @@ class SoundController {
     return this.enabled;
   }
 
-  private vibrate(ms: number | number[]) {
+  private vibrate(ms: number | number[]): void {
     if (typeof window !== 'undefined' && 'navigator' in window && navigator.vibrate) {
       try {
         navigator.vibrate(ms);
@@ -56,7 +73,7 @@ class SoundController {
     }
   }
 
-  public playSuccess() {
+  public playSuccess(): void {
     this.vibrate(18);
     if (!this.enabled) return;
     this.initCtx();
@@ -88,14 +105,15 @@ class SoundController {
     osc2.stop(t + 0.3);
   }
 
-  public playRecord() {
+  public playRecord(): void {
     this.vibrate([25, 40, 35]);
     if (!this.enabled) return;
     this.initCtx();
     if (!this.ctx) return;
 
     const t = this.ctx.currentTime;
-    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+    const frequencies = [523.25, 659.25, 783.99, 1046.50];
+    frequencies.forEach((freq, i) => {
       if (!this.ctx) return;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -110,7 +128,7 @@ class SoundController {
     });
   }
 
-  public playError() {
+  public playError(): void {
     this.vibrate([40, 30, 40]);
     if (!this.enabled) return;
     this.initCtx();
@@ -134,7 +152,7 @@ class SoundController {
     osc.stop(t + 0.25);
   }
 
-  public playClick() {
+  public playClick(): void {
     this.vibrate(8);
     if (!this.enabled) return;
     this.initCtx();

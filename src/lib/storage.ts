@@ -1,5 +1,7 @@
 /**
  * МЕНЕДЖЕР СТАТИСТИКИ И НАСТРОЕК (LocalStorage)
+ * Предоставляет безопасный доступ к локальному хранилищу с защитой
+ * от исключений в приватном режиме (Private Browsing / QuotaExceeded).
  */
 
 export interface StatsData {
@@ -9,21 +11,39 @@ export interface StatsData {
   bestTime: number; // секунды, 0 если нет рекорда
 }
 
-export class StorageManager {
-  private static KEY_STREAK = 'cal_streak';
-  private static KEY_BEST_STREAK = 'cal_best_streak';
-  private static KEY_TOTAL_SOLVED = 'cal_total_solved';
-  private static KEY_BEST_TIME = 'cal_best_time';
+const STORAGE_KEYS = {
+  STREAK: 'cal_streak',
+  BEST_STREAK: 'cal_best_streak',
+  TOTAL_SOLVED: 'cal_total_solved',
+  BEST_TIME: 'cal_best_time',
+  LANG: 'cal_lang'
+} as const;
 
+function safeGetItem(key: string): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Игнорируем в случае блокировки cookie или переполнения квоты
+  }
+}
+
+export class StorageManager {
   public static getStats(): StatsData {
-    if (typeof window === 'undefined') {
-      return { streak: 0, bestStreak: 0, totalSolved: 0, bestTime: 0 };
-    }
     return {
-      streak: parseInt(localStorage.getItem(this.KEY_STREAK) || '0', 10),
-      bestStreak: parseInt(localStorage.getItem(this.KEY_BEST_STREAK) || '0', 10),
-      totalSolved: parseInt(localStorage.getItem(this.KEY_TOTAL_SOLVED) || '0', 10),
-      bestTime: parseFloat(localStorage.getItem(this.KEY_BEST_TIME) || '0'),
+      streak: parseInt(safeGetItem(STORAGE_KEYS.STREAK) || '0', 10),
+      bestStreak: parseInt(safeGetItem(STORAGE_KEYS.BEST_STREAK) || '0', 10),
+      totalSolved: parseInt(safeGetItem(STORAGE_KEYS.TOTAL_SOLVED) || '0', 10),
+      bestTime: parseFloat(safeGetItem(STORAGE_KEYS.BEST_TIME) || '0'),
     };
   }
 
@@ -42,12 +62,10 @@ export class StorageManager {
       isNewRecord = true;
     }
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(this.KEY_STREAK, stats.streak.toString());
-      localStorage.setItem(this.KEY_BEST_STREAK, stats.bestStreak.toString());
-      localStorage.setItem(this.KEY_TOTAL_SOLVED, stats.totalSolved.toString());
-      localStorage.setItem(this.KEY_BEST_TIME, stats.bestTime.toString());
-    }
+    safeSetItem(STORAGE_KEYS.STREAK, stats.streak.toString());
+    safeSetItem(STORAGE_KEYS.BEST_STREAK, stats.bestStreak.toString());
+    safeSetItem(STORAGE_KEYS.TOTAL_SOLVED, stats.totalSolved.toString());
+    safeSetItem(STORAGE_KEYS.BEST_TIME, stats.bestTime.toString());
 
     return { isNewRecord, stats };
   }
@@ -55,34 +73,26 @@ export class StorageManager {
   public static addFail(): StatsData {
     const stats = this.getStats();
     stats.streak = 0;
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(this.KEY_STREAK, '0');
-    }
+    safeSetItem(STORAGE_KEYS.STREAK, '0');
     return stats;
   }
 
   // Настройки видимости подсказок
   public static getHintHidden(key: string): boolean {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem(key) === 'true';
+    return safeGetItem(key) === 'true';
   }
 
-  public static setHintHidden(key: string, hidden: boolean) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(key, hidden ? 'true' : 'false');
+  public static setHintHidden(key: string, hidden: boolean): void {
+    safeSetItem(key, hidden ? 'true' : 'false');
   }
 
   // Настройка языка интерфейса
-  private static KEY_LANG = 'cal_lang';
-
   public static getLanguage(): 'ru' | 'en' {
-    if (typeof window === 'undefined') return 'ru';
-    const saved = localStorage.getItem(this.KEY_LANG);
+    const saved = safeGetItem(STORAGE_KEYS.LANG);
     return (saved === 'en' || saved === 'ru') ? saved : 'ru';
   }
 
-  public static setLanguage(lang: 'ru' | 'en') {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(this.KEY_LANG, lang);
+  public static setLanguage(lang: 'ru' | 'en'): void {
+    safeSetItem(STORAGE_KEYS.LANG, lang);
   }
 }
