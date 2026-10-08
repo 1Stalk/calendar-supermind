@@ -5,5 +5,6 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   // Поддержка деплоя на GitHub Pages и другие статические хостинги
   // Если репозиторий разворачивается в подпапку: ASTRO_BASE=/DateCountingWeb/ npm run build
+  site: 'https://1stalk.github.io',
   base: process.env.ASTRO_BASE || '/',
 });
